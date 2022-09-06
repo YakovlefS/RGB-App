@@ -19,23 +19,29 @@ class ViewController: UIViewController {
     @IBOutlet weak var greenSlider: UISlider!
     @IBOutlet weak var blueSlider: UISlider!
     
+    var delegate: ColorViewControllerDelegate
+    var viewColor: UIColor!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
         colorView.layer.cornerRadius = 20
         
         redSlider.minimumTrackTintColor = .red
         greenSlider.minimumTrackTintColor = .green
         
-        setColor()
+        colorView.backgroundColor = viewColor
+        
+        setSliders()
         setValue(for: redLabel, greenLabel, blueLabel)
+        
+        //        setColor()
+        //        setValue(for: redLabel, greenLabel, blueLabel)
         
     }
     
     @IBAction func rgbSlider(_ sender: UISlider) {
-        setColor()
+        
         switch sender {
         case redSlider:
             redLabel.text = string(from: redSlider)
@@ -44,7 +50,17 @@ class ViewController: UIViewController {
         default:
             blueLabel.text = string(from: blueSlider)
         }
+        
+        setColor()
     }
+    
+    @IBAction func doneButtonPressed() {
+        delegate.setColor(colorView.backgroundColor ?? .white)
+        dismiss(animated: true)
+    }
+}
+    
+extension ViewController {
     
     private func setColor() {
         colorView.backgroundColor = UIColor(
@@ -67,7 +83,53 @@ class ViewController: UIViewController {
         }
     }
     
+    private func setSliders() {
+        let ciColor = CIColor(color: viewColor)
+        
+        redSlider.value = Float(ciColor.red)
+        greenSlider.value = Float(ciColor.green)
+        blueSlider.value = Float(ciColor.blue)
+    }
+    
     private func string(from slider: UISlider) -> String {
         String(format: "%.2f", slider.value)
+    }
+    
+    @objc private func didTapDone() {
+        view.endEditing(true)
+    }
+}
+
+private func showAlert(title:String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+}
+
+//extension ColorViewController: UITextFieldDelegate {
+//
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        super.touchesBegan(touches, with: event)
+//        view.endEditing(true)
+//    }
+//
+//    func textFieldDidEndEditing(_ textField: UITextField) {
+//
+//        guard let text = textField.text else { return }
+//
+//        if let currentValue = Float(text) {
+//            switch textField {
+//            }
+//        }
+//    }
+        let flexBarButton = UIBarButtonItem(
+            barButtonSystemItem: .flexibleSpace,
+            target: nil,
+            action: nil
+        )
+
+    keyboardToolbar.items = [flexBarButton, doneButton]
     }
 }
